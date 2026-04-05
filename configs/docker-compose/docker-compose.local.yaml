@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ../..
+      dockerfile: configs/docker-compose/Dockerfile.server.dockerfile
+    image: server-image:latest
+    container_name: faraway-server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../../configs/config.server.local.yaml:/app/configs/config.server.local.yaml:ro
+    networks:
+      - faraway-net
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ../..
+      dockerfile: configs/docker-compose/Dockerfile.client.dockerfile
+    image: client-image:latest
+    container_name: faraway-client
+    volumes:
+      - ../../configs/config.client.local.yaml:/app/configs/config.client.local.yaml:ro
+    networks:
+      - faraway-net
+    depends_on:
+      - server
+    restart: on-failure
+
+networks:
+  faraway-net:
+    driver: bridge
